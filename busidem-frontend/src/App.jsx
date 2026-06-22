@@ -1,12 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Pasajero from './components/Pasajero';
 import Chofer from './components/Chofer';
+import Admin from './Admin'; // Importamos tu módulo de administración
 
 function App() {
   const [cedula, setCedula] = useState('');
-  const [ambiente, setAmbiente] = useState('inicio'); // inicio, pasajero, chofer
+  // Validamos inicialmente si es un dispositivo móvil
+  const [ambiente, setAmbiente] = useState('inicio'); // inicio, pasajero, chofer, admin
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
+
+  // Efecto para detectar si NO es móvil al cargar la app y mandar directo al Admin
+  useEffect(() => {
+    const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!esMovil) {
+      setAmbiente('admin');
+    }
+  }, []);
 
   const manejarAccesoAutomatico = async (e) => {
     e.preventDefault();
@@ -19,8 +29,8 @@ function App() {
     setCargando(true);
 
     try {
-      // Consultamos al servidor local para verificar si está en la plantilla de choferes
-      const response = await fetch('http://localhost:3001/api/admin/resumen');
+      // Usamos ruta relativa para que funcione correctamente en producción dentro de Render
+      const response = await fetch('/api/admin/resumen');
       const data = await response.json();
 
       if (data.success) {
@@ -30,15 +40,12 @@ function App() {
         if (esChofer) {
           setAmbiente('chofer');
         } else {
-          // Si no es chofer, el sistema lo direcciona automáticamente al ambiente de pasajero
           setAmbiente('pasajero');
         }
       } else {
-        // En caso de caída de la API, por seguridad por defecto habilitamos pasajero
         setAmbiente('pasajero');
       }
     } catch (err) {
-      // Si el servidor está apagado temporalmente, permitimos pasar a pasajero para pruebas
       setAmbiente('pasajero');
     } finally {
       setCargando(false);
@@ -50,23 +57,25 @@ function App() {
     setCedula('');
   };
 
-  // PANTALLA DE INICIO UNIFICADA (DISEÑO CARNET AZUL)
+  // AMBIENTE ADMINISTRATIVO PRINCIPAL (Para computadoras o si se requiere ver)
+  if (ambiente === 'admin') {
+    return <Admin />;
+  }
+
+  // PANTALLA DE INICIO UNIFICADA (DISEÑO CARNET AZUL - MÓVIL)
   if (ambiente === 'inicio') {
     return (
       <div style={{ backgroundColor: '#212529', minHeight: '100vh', padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'sans-serif' }}>
         
         <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#0056b3', borderRadius: '15px', boxShadow: '0 8px 20px rgba(0,0,0,0.3)', padding: '4px', overflow: 'hidden' }}>
           
-          {/* Franja superior estética del carnet */}
           <div style={{ backgroundColor: '#004085', padding: '15px 10px', textAlign: 'center', borderTopLeftRadius: '11px', borderTopRightRadius: '11px' }}>
             <h1 style={{ margin: 0, color: '#fff', fontSize: '22px', letterSpacing: '1px', fontWeight: 'bold' }}>BUSIDEM</h1>
             <p style={{ margin: '4px 0 0 0', color: '#82b1ff', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Sistema de Transporte Digital</p>
           </div>
 
-          {/* Cuerpo interno blanco del carnet */}
           <div style={{ backgroundColor: '#ffffff', padding: '25px 20px', borderBottomLeftRadius: '11px', borderBottomRightRadius: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             
-            {/* Icono identificador del pase */}
             <div style={{ width: '70px', height: '70px', backgroundColor: '#e3f2fd', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px', border: '3px solid #0056b3' }}>
               <span style={{ fontSize: '35px' }}>🪪</span>
             </div>
@@ -112,11 +121,10 @@ function App() {
     );
   }
 
-  // AMBIENTES DETECTADOS AUTOMÁTICAMENTE
+  // AMBIENTES DETECTADOS AUTOMÁTICAMENTE (PASAJERO / CHOFER)
   return (
     <div style={{ backgroundColor: '#212529', minHeight: '100vh', padding: '10px' }}>
       
-      {/* Botón flotante superior de retorno sólo visible en las vistas activas */}
       <div style={{ maxWidth: '360px', margin: '0 auto 10px auto', display: 'flex', justifyContent: 'flex-start' }}>
         <button 
           onClick={regresarAlInicio}
