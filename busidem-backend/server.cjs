@@ -17,6 +17,10 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
+// --- CONFIGURACIÓN PARA SERVIR EL FRONTEND DESDE EL BACKEND ---
+// Apuntamos a la carpeta dist dentro de busidem-frontend
+app.use(express.static(path.join(__dirname, 'busidem-frontend', 'dist')));
+
 // --- DEFINICIÓN DE RUTAS DE ARCHIVOS ---
 const PATH_CONFIG = path.join(__dirname, 'configLinea.json');
 const PATH_CHOFERES = path.join(__dirname, 'choferes.json');
@@ -36,10 +40,6 @@ const leerArchivo = (filePath, valorDefecto) => {
 const guardarArchivo = (filePath, data) => {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 };
-
-app.get('/', (req, res) => {
-  res.send('El servidor de BUSIDEM está funcionando correctamente.');
-});
 
 // --- RUTAS DE CONFIGURACIÓN Y DATOS ---
 app.get('/api/config', (req, res) => {
@@ -65,6 +65,11 @@ app.get('/api/admin/directiva', (req, res) => {
 
 app.get('/api/admin/unidades', (req, res) => {
   res.json({ success: true, unidades: leerArchivo(PATH_UNIDADES, []) });
+});
+
+// Cualquier ruta que no coincida con las APIs cargará el index.html del frontend
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'busidem-frontend', 'dist', 'index.html'));
 });
 
 server.listen(PORT, () => {
