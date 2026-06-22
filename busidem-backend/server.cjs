@@ -75,6 +75,29 @@ app.get('/api/admin/unidades', (req, res) => {
   res.json({ success: true, unidades });
 });
 
+// Importa fs y Mongoose/MongoDB si no lo has hecho
+const fs = require('fs');
+const path = require('path');
+
+app.get('/api/migrar', async (req, res) => {
+    try {
+        const archivos = ['choferes.json', 'unidades.json', 'usuarios.json', 'configLinea.json', 'directiva.json'];
+        
+        for (const nombreArchivo of archivos) {
+            const ruta = path.join(__dirname, nombreArchivo);
+            if (fs.existsSync(ruta)) {
+                const datos = JSON.parse(fs.readFileSync(ruta, 'utf8'));
+                const coleccion = nombreArchivo.replace('.json', '');
+                await mongoose.connection.db.collection(coleccion).deleteMany({});
+                await mongoose.connection.db.collection(coleccion).insertMany(datos);
+            }
+        }
+        res.send("¡Migración completada con éxito!");
+    } catch (error) {
+        res.status(500).send("Error en migración: " + error.message);
+    }
+});
+
 // Inicio del servidor
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
