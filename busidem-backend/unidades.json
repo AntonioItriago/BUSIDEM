@@ -1,0 +1,12 @@
+[
+  {
+    "id": "BUS-01",
+    "marca": "ENCAVA",
+    "modelo": "ENT-610",
+    "placa": "AABB11X",
+    "chofer": "AASSDDFF",
+    "cedula_chofer": "15807188",
+    "saldo_acumulado": 0,
+    "choferAsignado": "15807188"
+  }
+]

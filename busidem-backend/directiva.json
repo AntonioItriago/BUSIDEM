@@ -1,0 +1,22 @@
+{
+  "presidente": {
+    "cargo": "Presidente",
+    "cedula": "pedro perez"
+  },
+  "vicepresidente": {
+    "cargo": "Vicepresidente",
+    "cedula": "juan sanchez"
+  },
+  "secretario": {
+    "cargo": "Secretario",
+    "cedula": "carlos martinez"
+  },
+  "tesorero": {
+    "cargo": "Tesorero",
+    "cedula": ""
+  },
+  "vocal": {
+    "cargo": "Vocal",
+    "cedula": ""
+  }
+}
