@@ -18,8 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 // --- CONFIGURACIÓN PARA SERVIR EL FRONTEND DESDE EL BACKEND ---
-// Apuntamos a la carpeta dist dentro de busidem-frontend
-app.use(express.static(path.join(__dirname, 'busidem-frontend', 'dist')));
+// Subimos un nivel con '..' para salir de busidem-backend e ingresar a busidem-frontend
+const FRONTEND_DIST = path.join(__dirname, '..', 'busidem-frontend', 'dist');
+app.use(express.static(FRONTEND_DIST));
 
 // --- DEFINICIÓN DE RUTAS DE ARCHIVOS ---
 const PATH_CONFIG = path.join(__dirname, 'configLinea.json');
@@ -69,7 +70,12 @@ app.get('/api/admin/unidades', (req, res) => {
 
 // Cualquier ruta que no coincida con las APIs cargará el index.html del frontend
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'busidem-frontend', 'dist', 'index.html'));
+  const indexPath = path.join(FRONTEND_DIST, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send('El servidor está funcionando. Recuerde ejecutar el build del frontend para generar la carpeta dist.');
+  }
 });
 
 server.listen(PORT, () => {
