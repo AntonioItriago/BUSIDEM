@@ -95,7 +95,7 @@ const cargarConfiguracion = async () => {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Miembros de la directiva vial actualizados correctamente.");
+        alert("Miembros de la directiva vial updated correctamente.");
       }
     } catch (err) {
       alert("Error al guardar directiva.");
@@ -165,7 +165,7 @@ const cargarConfiguracion = async () => {
     }
   };
 
-  const asignarChofer AUnidad = async (unidadId, choferCedula) => {
+  const asignarChoferAUnidad = async (unidadId, choferCedula) => {
     try {
       const res = await fetch(`${API_URL}/api/admin/unidades/asignar`, {
         method: 'POST',
