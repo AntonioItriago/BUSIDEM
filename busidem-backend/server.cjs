@@ -16,7 +16,10 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
+
+// Servir archivos estáticos desde la carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
+
 // --- CONFIGURACIÓN PARA SERVIR EL FRONTEND DESDE EL BACKEND ---
 // Subimos un nivel con '..' para salir de busidem-backend e ingresar a busidem-frontend
 const FRONTEND_DIST = path.join(__dirname, '..', 'busidem-frontend', 'dist');
