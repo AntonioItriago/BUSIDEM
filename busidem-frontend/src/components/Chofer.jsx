@@ -74,19 +74,40 @@ function Chofer({ cedulaInicial }) {
     }
   };
 
-  const actualizarDatosChofer = async (cedula) => {
+const actualizarDatosChofer = async (cedula) => {
     try {
+      // Forzamos la obtención de la última data del servidor
       const res = await fetch(`${API_URL}/api/admin/resumen`);
       const data = await res.json();
-      if (data.success && data.choferes) {
+      
+      if (data.success) {
+        // Actualizamos datos del chofer
         const chofer = data.choferes.find(ch => ch.cedula.toString().trim() === cedula.toString().trim());
-        if (chofer) {
-          setChoferLogueado(chofer);
-          buscarUnidadAsignada(cedula, data.unidades || []);
-        }
+        if (chofer) setChoferLogueado(chofer);
+        
+        // Buscamos la unidad con la data fresca
+        buscarUnidadAsignada(cedula, data.unidades || []);
       }
     } catch (err) {
       console.error('Error sincronizando chofer');
+    }
+  };
+
+  const buscarUnidadAsignada = (cedulaChofer, listaUnidades) => {
+    if (!cedulaChofer || !listaUnidades) return;
+    
+    const cedulaStr = cedulaChofer.toString().trim();
+    
+    // Buscamos una unidad donde la cédula esté presente en el campo de asignación
+    const unidad = listaUnidades.find(u => {
+      // Normalizamos: convertimos a string y buscamos la cédula
+      return u.choferAsignado && u.choferAsignado.toString().includes(cedulaStr);
+    });
+
+    if (unidad) {
+      setUnidadAsignada(unidad);
+    } else {
+      setUnidadAsignada(null);
     }
   };
 
