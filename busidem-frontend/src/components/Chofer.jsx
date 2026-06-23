@@ -80,7 +80,10 @@ function Chofer({ cedulaInicial }) {
       const data = await res.json();
       if (data.success && data.choferes) {
         const chofer = data.choferes.find(ch => ch.cedula.trim() === cedula.trim());
-        if (chofer) setChoferLogueado(chofer);
+        if (chofer) {
+          setChoferLogueado(chofer);
+          buscarUnidadAsignada(chofer.cedula, data.unidades || []);
+        }
       }
     } catch (err) {
       console.error('Error sincronizando chofer');
@@ -88,7 +91,8 @@ function Chofer({ cedulaInicial }) {
   };
 
   const buscarUnidadAsignada = (cedulaChofer, listaUnidades) => {
-    const unidad = listaUnidades.find(u => u.choferAsignado === cedulaChofer);
+    // Corrección para validar si el texto de asignación de la central incluye la cédula del chofer
+    const unidad = listaUnidades.find(u => u.choferAsignado && u.choferAsignado.includes(cedulaChofer.trim()));
     if (unidad) {
       setUnidadAsignada(unidad);
     } else {
