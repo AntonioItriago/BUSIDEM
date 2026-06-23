@@ -53,7 +53,7 @@ const cargarConfiguracion = async () => {
 
   // 3. ESTADOS - PASAJEROS FRECUENTES
   const [pasajeros, setPasajeros] = useState([]);
-  const [nuevoPasajero, setNuevoPasajero] = useState({ id: '', nombre: '' });
+  const [nuevoPasajero, setNuevoPasajero] = useState({ id: '', nombre: '', telefono: '' });
   const [montoRecarga, setMontoRecarga] = useState({});
   
   // 4. ESTADOS - PLANTILLA DE CHOFERES
@@ -196,7 +196,7 @@ const cargarConfiguracion = async () => {
       });
       const data = await res.json();
       if (data.success) {
-        setNuevoPasajero({ id: '', nombre: '' });
+        setNuevoPasajero({ id: '', nombre: '', telefono: '' });
         cargarResumenGeneral();
       }
     } catch (err) {
@@ -305,13 +305,14 @@ const cargarConfiguracion = async () => {
   }
 };
 
-// Función para generar QR de la App
-  const generarQrApp = (pasajero) => {
-    // Tomamos el hostname automáticamente del navegador
-    // Esto evita usar la IP fija 192.168.1.XX
+// Función para generar QR único de la App Movil (Pasajeros y Choferes)
+  const generarQrApp = () => {
     const host = window.location.hostname; 
-    const url = `http://${host}:5174/pasajero/${pasajero.id}`;
-    setQrAppPasajero({ ...pasajero, url: url });
+    // Corrección mínima: Apunta directamente al inicio unificado donde el sistema solicita la cédula
+    const url = window.location.hostname === 'busidem.onrender.com'
+      ? 'https://busidem.onrender.com/'
+      : `http://${host}:5173/`;
+    setQrAppPasajero({ url: url });
   };
 
   return (
@@ -449,8 +450,8 @@ const cargarConfiguracion = async () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ marginTop: 0, color: '#4e73df', fontSize: '18px' }}>Registro Único de Pasajeros</h2>
-              <button onClick={generarQrApp} style={{ padding: '10px 15px', backgroundColor: '#36b9cc', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                📱 Generar QR para App Instalable
+              <button type="button" onClick={generarQrApp} style={{ padding: '10px 15px', backgroundColor: '#36b9cc', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                📱 Generar QR Único (App Móvil Compartida)
               </button>
             </div>
 
@@ -459,9 +460,13 @@ const cargarConfiguracion = async () => {
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Cédula / ID de Identificación: *</label>
                 <input type="text" placeholder="Ej: V-12345678" value={nuevoPasajero.id} onChange={(e) => setNuevoPasajero({...nuevoPasajero, id: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
               </div>
-              <div style={{ flex: 2 }}>
+              <div style={{ flex: 1.5 }}>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Nombre y Apellido completo: *</label>
                 <input type="text" placeholder="Ej: Juan Pérez" value={nuevoPasajero.nombre} onChange={(e) => setNuevoPasajero({...nuevoPasajero, nombre: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ flex: 1.5 }}>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Teléfono Celular (WhatsApp): *</label>
+                <input type="text" placeholder="Ej: +584120000000" value={nuevoPasajero.telefono} onChange={(e) => setNuevoPasajero({...nuevoPasajero, telefono: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                 <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#1cc88a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>➕ Agregar Pasajero</button>
@@ -474,6 +479,7 @@ const cargarConfiguracion = async () => {
                 <tr style={{ backgroundColor: '#4e73df', color: '#fff', textAlign: 'left' }}>
                   <th style={{ padding: '10px' }}>Cédula / Identificador</th>
                   <th style={{ padding: '10px' }}>Nombre del Beneficiario</th>
+                  <th style={{ padding: '10px' }}>Teléfono Celular</th>
                   <th style={{ padding: '10px' }}>Saldo Disponible</th>
                   <th style={{ padding: '10px', width: '250px' }}>Recarga Directa (Taquilla)</th>
                   <th style={{ padding: '10px', textAlign: 'center' }}>Acciones</th>
@@ -484,6 +490,7 @@ const cargarConfiguracion = async () => {
                   <tr key={p.id} style={{ borderBottom: '1px solid #e3e6f0' }}>
                     <td style={{ padding: '10px', fontWeight: 'bold' }}>{p.id}</td>
                     <td style={{ padding: '10px' }}>{p.nombre}</td>
+                    <td style={{ padding: '10px' }}>{p.telefono || <span style={{ fontStyle: 'italic', color: '#999' }}>No registrado</span>}</td>
                     <td style={{ padding: '10px', fontWeight: 'bold', color: p.saldo >= 15 ? '#1cc88a' : '#e74a3b' }}>{p.saldo ? p.saldo.toFixed(2) : '0.00'} Bs.</td>
                     <td style={{ padding: '10px' }}>
                       <div style={{ display: 'flex', gap: '5px' }}>
@@ -508,14 +515,16 @@ const cargarConfiguracion = async () => {
             {/* MODAL PARA MOSTRAR QR DE LA APP */}
             {qrAppPasajero && (
   <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
-      <h3>App Instalable (PWA)</h3>
+    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', textAlign: 'center', maxWidth: '340px' }}>
+      <h3>Enlace Único BUSIDEM Móvil</h3>
+      <p style={{ fontSize: '13px', color: '#6c757d' }}>Envía esta app por WhatsApp a pasajeros y choferes. Al ingresar su cédula, el sistema levantará el ambiente correspondiente.</p>
       <img 
         src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrAppPasajero.url)}`} 
         alt="QR PWA"
+        style={{ margin: '10px 0' }}
       />
-      <p>{qrAppPasajero.url}</p>
-      <button onClick={() => setQrAppPasajero(null)}>Cerrar</button>
+      <p style={{ wordBreak: 'break-all', fontSize: '14px', fontWeight: 'bold', color: '#4e73df' }}>{qrAppPasajero.url}</p>
+      <button onClick={() => setQrAppPasajero(null)} style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cerrar</button>
     </div>
   </div>
 )}
