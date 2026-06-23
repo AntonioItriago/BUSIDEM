@@ -68,6 +68,36 @@ app.get('/api/admin/unidades', (req, res) => {
   res.json({ success: true, unidades: leerArchivo(PATH_UNIDADES, []) });
 });
 
+// --- NUEVO ENDPOINT: AUTOREGISTRO DE PASAJERO ---
+app.post('/api/pasajero/autoregistro', (req, res) => {
+  const { id, nombre, telefono } = req.body;
+  const pasajeros = leerArchivo(PATH_USUARIOS, []);
+  
+  // 1. Leer configuración para obtener el valor del pasaje
+  const config = leerArchivo(PATH_CONFIG, { valorPasaje: '15.00' });
+  const valorPasaje = parseFloat(config.valorPasaje) || 15.00;
+  
+  // 2. Validar si ya existe
+  if (pasajeros.find(p => p.id === id.trim())) {
+    return res.status(400).json({ success: false, error: "La cédula ya se encuentra registrada." });
+  }
+
+  // 3. Calcular saldo (2 pasajes)
+  const nuevoPasajero = {
+    id: id.trim(),
+    nombre,
+    telefono,
+    saldo: valorPasaje * 2, // Toma el valor de la configuración
+    tipoPasajero: 'Normal',
+    fechaRegistro: new Date().toISOString()
+  };
+
+  pasajeros.push(nuevoPasajero);
+  guardarArchivo(PATH_USUARIOS, pasajeros);
+
+  res.json({ success: true, message: `Registro exitoso. Se han acreditado ${valorPasaje * 2} Bs. (2 pasajes) de bienvenida.` });
+});
+
 // Cualquier ruta que no coincida con las APIs cargará el index.html del frontend
 app.get('*', (req, res) => {
   const indexPath = path.join(FRONTEND_DIST, 'index.html');

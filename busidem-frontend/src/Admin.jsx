@@ -56,15 +56,16 @@ const cargarConfiguracion = async () => {
   const [nuevoPasajero, setNuevoPasajero] = useState({ id: '', nombre: '', telefono: '' });
   const [montoRecarga, setMontoRecarga] = useState({});
   
-  // 4. ESTADOS - PLANTILLA DE CHOFERES
-  const [choferes, setChoferes] = useState([]);
-  const [nuevoChofer, setNuevoChofer] = useState({
-    cedula: '',
-    nombre: '',
-    telefono: '',
-    bancoNombre: '',
-    bancoNumero: ''
-  });
+// 4. ESTADOS - PLANTILLA DE PERSONAL OPERATIVO (ANTES CHOFERES)
+const [choferes, setChoferes] = useState([]);
+const [nuevoChofer, setNuevoChofer] = useState({
+  cedula: '',
+  nombre: '',
+  telefono: '',
+  bancoNombre: '',
+  bancoNumero: '',
+  rol: 'Chófer' // Nuevo campo para el rol
+});
 
   // CARGA DE DATOS INICIAL AL MONTAR EL COMPONENTE
   useEffect(() => {
@@ -412,7 +413,7 @@ const cargarConfiguracion = async () => {
                   <th style={{ padding: '10px' }}>Marca / Modelo</th>
                   <th style={{ padding: '10px' }}>Placa</th>
                   <th style={{ padding: '10px' }}>Dueño Registrado</th>
-                  <th style={{ padding: '10px' }}>Chofer en Operación (Asignado)</th>
+                  <th style={{ padding: '10px' }}>Personal Operativo (Asignado)</th>
                   <th style={{ padding: '10px', textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
@@ -429,10 +430,13 @@ const cargarConfiguracion = async () => {
                         onChange={(e) => asignarChoferAUnidad(u.id, e.target.value)}
                         style={{ padding: '5px', width: '100%' }}
                       >
-                        <option value="">-- Sin Chofer Asignado --</option>
-                        {choferes.map(ch => (
-                          <option key={ch.cedula} value={ch.cedula}>{ch.nombre} (C.I. {ch.cedula})</option>
-                        ))}
+                        <option value="">-- Sin Personal Asignado --</option>
+                        {choferes
+                          .filter(ch => ch.rol === 'Chófer' || !ch.rol)
+                          .map(ch => (
+                            <option key={ch.cedula} value={ch.cedula}>{ch.nombre} (C.I. {ch.cedula})</option>
+                          ))
+                        }
                       </select>
                     </td>
                     <td style={{ padding: '10px', textAlign: 'center' }}>
@@ -531,18 +535,26 @@ const cargarConfiguracion = async () => {
           </div>
         )}
 
-        {/* PESTAÑA 3: PLANTILLA DE CHOFERES */}
+        {/* PESTAÑA 3: PLANTILLA DE PERSONAL OPERATIVO */}
         {pestanaActiva === 'choferes' && (
           <div>
-            <h2 style={{ marginTop: 0, color: '#4e73df', fontSize: '18px', borderBottom: '1px solid #eaecf4', paddingBottom: '10px' }}>Ingresar Nuevo Chofer Permanente</h2>
-            <form onSubmit={registrarChofer} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '30px', backgroundColor: '#f8f9fc', padding: '15px', borderRadius: '6px' }}>
+            <h2 style={{ marginTop: 0, color: '#4e73df', fontSize: '18px', borderBottom: '1px solid #eaecf4', paddingBottom: '10px' }}>Ingresar Nuevo Personal Operativo</h2>
+            <form onSubmit={registrarChofer} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '30px', backgroundColor: '#f8f9fc', padding: '15px', borderRadius: '6px' }}>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Cédula de Identidad: *</label>
                 <input type="text" placeholder="Ej: V-11222333" value={nuevoChofer.cedula} onChange={(e) => setNuevoChofer({...nuevoChofer, cedula: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Nombre y Apellido: *</label>
-                <input type="text" placeholder="Nombre del chofer" value={nuevoChofer.nombre} onChange={(e) => setNuevoChofer({...nuevoChofer, nombre: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="Nombre del trabajador" value={nuevoChofer.nombre} onChange={(e) => setNuevoChofer({...nuevoChofer, nombre: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Rol: *</label>
+                <select value={nuevoChofer.rol || 'Chófer'} onChange={(e) => setNuevoChofer({...nuevoChofer, rol: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }}>
+                  <option value="Chófer">Chófer</option>
+                  <option value="Fiscal">Fiscal</option>
+                  <option value="Colector">Colector</option>
+                </select>
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Teléfono Móvil:</label>
@@ -550,61 +562,43 @@ const cargarConfiguracion = async () => {
               </div>
               <div>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Banco para Liquidación:</label>
-                <input type="text" placeholder="Ej: Banesco, Banco de Venezuela" value={nuevoChofer.bancoNombre} onChange={(e) => setNuevoChofer({...nuevoChofer, bancoNombre: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="Ej: Banesco" value={nuevoChofer.bancoNombre} onChange={(e) => setNuevoChofer({...nuevoChofer, bancoNombre: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box' }} />
               </div>
-              <div style={{ gridColumn: 'span 2' }}>
+              <div style={{ gridColumn: 'span 3' }}>
                 <label style={{ fontSize: '12px', fontWeight: 'bold', color: '#4e73df' }}>Número de Cuenta Bancaria (20 Dígitos): *</label>
                 <input type="text" placeholder="0102..." value={nuevoChofer.bancoNumero} onChange={(e) => setNuevoChofer({...nuevoChofer, bancoNumero: e.target.value})} style={{ width: '100%', padding: '8px', marginTop: '5px', boxSizing: 'border-box', fontFamily: 'monospace' }} />
               </div>
-              <div style={{ gridColumn: 'span 3', display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" style={{ padding: '10px 25px', backgroundColor: '#1cc88a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>✍️ Registrar Profesional Vial</button>
+              <div style={{ gridColumn: 'span 4', display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="submit" style={{ padding: '10px 25px', backgroundColor: '#1cc88a', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>✍️ Registrar Personal Operativo</button>
               </div>
             </form>
 
-            <h3 style={{ color: '#5a5c69', fontSize: '16px', marginBottom: '15px' }}>Nómina General de Choferes de la Línea</h3>
+            <h3 style={{ color: '#5a5c69', fontSize: '16px', marginBottom: '15px' }}>Nómina General de Personal Operativo</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ backgroundColor: '#4e73df', color: '#fff', textAlign: 'left' }}>
                   <th style={{ padding: '12px' }}>Cédula</th>
-                  <th style={{ padding: '12px' }}>Nombre y Apellido</th>
-                  <th style={{ padding: '12px' }}>Teléfono</th>
-                  <th style={{ padding: '12px' }}>Banco</th>
-                  <th style={{ padding: '12px' }}>Nro. Cuenta Bancaria</th>
+                  <th style={{ padding: '12px' }}>Nombre</th>
+                  <th style={{ padding: '12px' }}>Rol</th>
+                  <th style={{ padding: '12px' }}>Banco / Cuenta</th>
                   <th style={{ padding: '12px', textAlign: 'right' }}>Billetera Digital</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Cierre en Taquilla</th>
+                  <th style={{ padding: '12px', textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {choferes.map(chofer => (
-                  <tr key={chofer.cedula} style={{ borderBottom: '1px solid #e3e6f0' }}>
-                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{chofer.cedula}</td>
-                    <td style={{ padding: '12px' }}>{chofer.nombre}</td>
-                    <td style={{ padding: '12px' }}>{chofer.telefono}</td>
-                    <td style={{ padding: '12px' }}>{chofer.bancoNombre}</td>
-                    <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px' }}>{chofer.bancoNumero}</td>
-                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: '#28a745' }}>
-                      {chofer.saldo ? chofer.saldo.toFixed(2) : '0.00'} Bs.
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'center', display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                      {chofer.saldo > 0 ? (
-                        <button 
-                          onClick={() => vaciarBilleteraChofer(chofer.cedula)} 
-                          style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
-                        >
-                          📥 Vaciar Billetera
-                        </button>
-                      ) : (
-                        <span style={{ color: '#bcbcbc', fontSize: '12px', fontStyle: 'italic' }}>Sin ingresos</span>
-                      )}
-                      <button onClick={() => eliminarChofer(chofer.cedula)} style={{ padding: '5px 8px', backgroundColor: '#e74a3b', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>❌ Quitar</button>
+                {choferes.map(p => (
+                  <tr key={p.cedula} style={{ borderBottom: '1px solid #e3e6f0' }}>
+                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{p.cedula}</td>
+                    <td style={{ padding: '12px' }}>{p.nombre}</td>
+                    <td style={{ padding: '12px' }}>{p.rol || 'Chófer'}</td>
+                    <td style={{ padding: '12px' }}>{p.bancoNombre} <br/><span style={{fontFamily: 'monospace'}}>{p.bancoNumero}</span></td>
+                    <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: '#28a745' }}>{p.saldo ? p.saldo.toFixed(2) : '0.00'} Bs.</td>
+                    <td style={{ padding: '12px', textAlign: 'center' }}>
+                      {p.saldo > 0 && <button onClick={() => vaciarBilleteraChofer(p.cedula)} style={{ padding: '5px 8px', marginRight: '5px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>📥 Vaciar</button>}
+                      <button onClick={() => eliminarChofer(p.cedula)} style={{ padding: '5px 8px', backgroundColor: '#e74a3b', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>❌ Quitar</button>
                     </td>
                   </tr>
                 ))}
-                {choferes.length === 0 && (
-                  <tr>
-                    <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>No hay choferes registrados en la plantilla.</td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

@@ -42,9 +42,31 @@ function App() {
           setAmbiente('chofer');
         } else if (esPasajero) {
           setAmbiente('pasajero');
-        } else {
-          setError('Número de cédula no registrado en el sistema BUSIDEM.');
-        }
+        // Dentro de manejarAccesoAutomatico, en el bloque donde esPasajero es false:
+} else {
+  // En lugar de solo mostrar el error, habilitamos un estado de "registro"
+  const confirmarRegistro = window.confirm("Cédula no encontrada. ¿Desea realizar el autoregistro como Pasajero Normal y obtener 2 pasajes de bienvenida?");
+  
+  if (confirmarRegistro) {
+    const nombre = prompt("Ingrese su nombre y apellido:");
+    if (nombre) {
+      const response = await fetch('/api/pasajero/autoregistro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: cedula.trim(), nombre, telefono: 'Sin teléfono' })
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert(data.message);
+        setAmbiente('pasajero'); // Entra directo al sistema
+      } else {
+        setError(data.error);
+      }
+    }
+  } else {
+    setError('Número de cédula no registrado en el sistema BUSIDEM.');
+  }
+}
       } else {
         setError('Error al conectar con la base de datos de control.');
       }
