@@ -16,7 +16,7 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, 'public')));
 // --- CONFIGURACIÓN PARA SERVIR EL FRONTEND DESDE EL BACKEND ---
 // Subimos un nivel con '..' para salir de busidem-backend e ingresar a busidem-frontend
 const FRONTEND_DIST = path.join(__dirname, '..', 'busidem-frontend', 'dist');
@@ -41,6 +41,11 @@ const leerArchivo = (filePath, valorDefecto) => {
 const guardarArchivo = (filePath, data) => {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 };
+
+// Ruta para SPA (Single Page Application)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // --- RUTAS DE CONFIGURACIÓN Y DATOS ---
 app.get('/api/config', (req, res) => {
