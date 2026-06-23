@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BUSIDEM Móvil</title>
+  
+  <!-- Vinculación obligatoria del manifiesto PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2e59d9">
+  <script type="module" crossorigin src="/assets/index-CK5V-CLX.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Registro automático del Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker registrado con éxito', reg.scope))
+          .catch(err => console.error('Error al registrar el Service Worker', err));
+      });
+    }
+  </script>
+</body>
+</html>

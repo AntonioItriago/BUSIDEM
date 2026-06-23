@@ -17,8 +17,8 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos desde la carpeta public
-app.use(express.static(path.join(__dirname, 'public')));
+// Servir archivos desde la raíz en la carpeta 'dist'
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // --- CONFIGURACIÓN PARA SERVIR EL FRONTEND DESDE EL BACKEND ---
 // Subimos un nivel con '..' para salir de busidem-backend e ingresar a busidem-frontend
@@ -45,9 +45,9 @@ const guardarArchivo = (filePath, data) => {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 };
 
-// Ruta para SPA (Single Page Application)
+// Redireccionar todas las rutas al index.html para React Router
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // --- RUTAS DE CONFIGURACIÓN Y DATOS ---
