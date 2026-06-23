@@ -34,87 +34,84 @@ function App() {
       const data = await response.json();
 
       if (data.success) {
-        // Buscamos si la cédula pertenece a un chofer registrado
-        const esChofer = data.choferes.some(ch => ch.cedula === cedula.trim());
+        // Corrección mínima: Verificar en las listas del servidor para levantar el ambiente correcto
+        const esChofer = data.choferes && data.choferes.some(ch => ch.cedula === cedula.trim());
+        const esPasajero = data.pasajeros && data.pasajeros.some(p => p.id === cedula.trim());
 
         if (esChofer) {
           setAmbiente('chofer');
-        } else {
+        } else if (esPasajero) {
           setAmbiente('pasajero');
+        } else {
+          setError('Número de cédula no registrado en el sistema BUSIDEM.');
         }
       } else {
-        setAmbiente('pasajero');
+        setError('Error al conectar con la base de datos de control.');
       }
     } catch (err) {
-      setAmbiente('pasajero');
+      setError('No se pudo establecer comunicación con el servidor.');
     } finally {
       setCargando(false);
     }
   };
 
   const regresarAlInicio = () => {
-    setAmbiente('inicio');
     setCedula('');
+    setAmbiente('inicio');
+    setError('');
   };
 
-  // AMBIENTE ADMINISTRATIVO PRINCIPAL (Para computadoras o si se requiere ver)
+  // AMBIENTE ADMINISTRATIVO (ESCRITORIO / LOCALHOST)
   if (ambiente === 'admin') {
     return <Admin />;
   }
 
-  // PANTALLA DE INICIO UNIFICADA (DISEÑO CARNET AZUL - MÓVIL)
+  // PANTALLA DE INICIO DE SESIÓN MÓVIL UNIFICADO
   if (ambiente === 'inicio') {
     return (
-      <div style={{ backgroundColor: '#212529', minHeight: '100vh', padding: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'sans-serif' }}>
+      <div style={{ backgroundColor: '#1a1e21', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'Segoe UI, sans-serif', padding: '15px', boxSizing: 'border-box' }}>
         
-        <div style={{ width: '100%', maxWidth: '350px', backgroundColor: '#0056b3', borderRadius: '15px', boxShadow: '0 8px 20px rgba(0,0,0,0.3)', padding: '4px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', maxWidth: '360px', backgroundColor: '#2b3035', padding: '30px 20px', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)', border: '1px solid #3d4349' }}>
           
-          <div style={{ backgroundColor: '#004085', padding: '15px 10px', textAlign: 'center', borderTopLeftRadius: '11px', borderTopRightRadius: '11px' }}>
-            <h1 style={{ margin: 0, color: '#fff', fontSize: '22px', letterSpacing: '1px', fontWeight: 'bold' }}>BUSIDEM</h1>
-            <p style={{ margin: '4px 0 0 0', color: '#82b1ff', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Sistema de Transporte Digital</p>
+          <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+            <span style={{ fontSize: '50px' }}>🚍</span>
+            <h1 style={{ margin: '10px 0 5px 0', color: '#fff', fontSize: '22px', fontWeight: 'bold', letterSpacing: '0.5px' }}>BUSIDEM MÓVIL</h1>
+            <p style={{ margin: 0, color: '#9fa6b2', fontSize: '13px' }}>Billetera Digital y Control de Pasajes</p>
           </div>
 
-          <div style={{ backgroundColor: '#ffffff', padding: '25px 20px', borderBottomLeftRadius: '11px', borderBottomRightRadius: '11px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            
-            <div style={{ width: '70px', height: '70px', backgroundColor: '#e3f2fd', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '15px', border: '3px solid #0056b3' }}>
-              <span style={{ fontSize: '35px' }}>🪪</span>
+          {error && (
+            <div style={{ padding: '10px', backgroundColor: '#842029', color: '#f8d7da', border: '1px solid #f5c2c7', borderRadius: '6px', fontSize: '13px', marginBottom: '15px', textAlign: 'center', fontWeight: '500' }}>
+              ⚠️ {error}
             </div>
+          )}
 
-            <h3 style={{ margin: '0 0 5px 0', color: '#333', fontSize: '16px' }}>Identificación de Usuario</h3>
-            <p style={{ margin: '0 0 20px 0', color: '#6c757d', fontSize: '12px', textAlign: 'center' }}>Ingrese su documento para detectar su perfil</p>
-
-            {error && (
-              <div style={{ width: '100%', padding: '8px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px', fontSize: '12px', marginBottom: '12px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }}>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={manejarAccesoAutomatico} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="text" 
-                  placeholder="Número de Cédula" 
-                  value={cedula}
-                  onChange={(e) => setCedula(e.target.value)}
-                  disabled={cargando}
-                  style={{ width: '100%', padding: '12px', fontSize: '16px', borderRadius: '6px', border: '2px solid #0056b3', boxSizing: 'border-box', textAlign: 'center', fontWeight: 'bold', letterSpacing: '1px', color: '#333' }} 
-                />
-              </div>
-
-              <button 
-                type="submit" 
+          <form onSubmit={manejarAccesoAutomatico} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div>
+              <label style={{ display: 'block', color: '#dee2e6', fontSize: '12px', fontWeight: 'bold', marginBottom: '6px', textTransform: 'uppercase' }}>
+                Documento de Identidad (Cédula):
+              </label>
+              <input 
+                type="text" 
+                placeholder="Ej: V-12345678" 
+                value={cedula}
+                onChange={(e) => setCedula(e.target.value)}
                 disabled={cargando}
-                style={{ width: '100%', padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', marginTop: '5px' }}
-              >
-                {cargando ? 'Verificando...' : 'Ingresar al Sistema 🚀'}
-              </button>
-            </form>
-
-            <div style={{ marginTop: '20px', fontSize: '10px', color: '#adb5bd', textAlign: 'center' }}>
-              V-2026 BUSIDEM MÓVIL
+                style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #495057', backgroundColor: '#343a40', color: '#fff', fontSize: '15px', boxSizing: 'border-box', outline: 'none', textAlign: 'center', fontWeight: 'bold', letterSpacing: '1px' }}
+              />
             </div>
-          </div>
 
+            <button 
+              type="submit"
+              disabled={cargando}
+              style={{ width: '100%', padding: '12px', backgroundColor: '#0056b3', color: 'white', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s', marginTop: '5px' }}
+            >
+              {cargando ? 'Verificando...' : 'Ingresar al Sistema 🚀'}
+            </button>
+          </form>
+
+          <div style={{ marginTop: '20px', fontSize: '10px', color: '#adb5bd', textAlign: 'center' }}>
+            V-2026 BUSIDEM MÓVIL
+          </div>
         </div>
 
       </div>
@@ -130,16 +127,13 @@ function App() {
           onClick={regresarAlInicio}
           style={{ padding: '6px 12px', backgroundColor: '#343a40', color: '#fff', border: '1px solid #495057', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
         >
-          ⬅️ Cambiar Cédula / Salir
+          ⬅️ Salir / Volver
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        {ambiente === 'pasajero' ? (
-          <Pasajero cedulaInicial={cedula} />
-        ) : (
-          <Chofer cedulaInicial={cedula} />
-        )}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {ambiente === 'pasajero' && <Pasajero cedulaInicial={cedula} />}
+        {ambiente === 'chofer' && <Chofer cedulaInicial={cedula} />}
       </div>
 
     </div>
