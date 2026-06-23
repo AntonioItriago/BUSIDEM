@@ -96,40 +96,22 @@ const actualizarDatosChofer = async (cedula) => {
   const buscarUnidadAsignada = (cedulaChofer, listaUnidades) => {
     if (!cedulaChofer || !listaUnidades) return;
     
-    const cedulaStr = cedulaChofer.toString().trim();
+    // Función para extraer solo los números de una cadena (ej: "AASSDDFF (C.I. 15807188)" -> "15807188")
+    const extraerNumeros = (str) => str.toString().replace(/\D/g, '');
     
-    // Buscamos una unidad donde la cédula esté presente en el campo de asignación
-    const unidad = listaUnidades.find(u => {
-      // Normalizamos: convertimos a string y buscamos la cédula
-      return u.choferAsignado && u.choferAsignado.toString().includes(cedulaStr);
-    });
-
-    if (unidad) {
-      setUnidadAsignada(unidad);
-    } else {
-      setUnidadAsignada(null);
-    }
-  };
-
-  const buscarUnidadAsignada = (cedulaChofer, listaUnidades) => {
-    if (!cedulaChofer || !listaUnidades) return;
+    const cedulaLimpia = extraerNumeros(cedulaChofer);
     
-    const cedulaStr = cedulaChofer.toString().trim();
-    
-    // Busca la unidad asegurando que coincida la cadena de texto de la asignación
     const unidad = listaUnidades.find(u => {
       if (!u.choferAsignado) return false;
-      return u.choferAsignado.toString().includes(cedulaStr);
+      const asignacionLimpia = extraerNumeros(u.choferAsignado);
+      // Comparamos los números puros para evitar errores de formato
+      return asignacionLimpia === cedulaLimpia;
     });
 
-    if (unidad) {
-      setUnidadAsignada(unidad);
-    } else {
-      setUnidadAsignada(null);
-    }
+    setUnidadAsignada(unidad || null);
   };
 
-  const procesarCobroDigital = async (e) => {
+    const procesarCobroDigital = async (e) => {
     e.preventDefault();
     setMensaje('');
     if (!idPasajero) {
