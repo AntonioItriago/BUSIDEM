@@ -10,7 +10,6 @@ const API_URL = window.location.hostname === 'busidem.onrender.com'
 const socket = window.location.hostname === 'busidem.onrender.com' ? io() : io(API_URL);
 
 function Pasajero({ cedulaInicial }) {
-// ... Todo el resto de tu código de Pasajero.jsx se mantiene exactamente idéntico
   const [valorPasaje, setValorPasaje] = useState(0); // Nuevo estado para la tarifa
 
   const cargarTarifaVigente = async () => {
@@ -32,7 +31,6 @@ function Pasajero({ cedulaInicial }) {
     }
   }, [cedulaInicial]);
 
-  // ... resto del componente
   // Control de entorno y navegación interna del pasajero
   const [usuario, setUsuario] = useState(null);
   const [vistaActiva, setVistaActiva] = useState('menu'); // menu, c2p, pagar, opcion_pago

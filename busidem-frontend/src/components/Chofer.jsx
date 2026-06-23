@@ -10,7 +10,6 @@ const API_URL = window.location.hostname === 'busidem.onrender.com'
 const socket = window.location.hostname === 'busidem.onrender.com' ? io() : io(API_URL);
 
 function Chofer({ cedulaInicial }) {
-// ... Todo el resto de tu código de Chofer.jsx se mantiene exactamente idéntico
   // Control de navegación en pantalla móvil usando la cédula heredada
   const [choferLogueado, setChoferLogueado] = useState(null);
   const [unidadAsignada, setUnidadAsignada] = useState(null);
@@ -45,7 +44,7 @@ function Chofer({ cedulaInicial }) {
 
   const obtenerCostoPasaje = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/admin/config`);
+      const res = await fetch(`${API_URL}/api/config`);
       const data = await res.json();
       if (data.success && data.config) {
         setPasajeCosto(parseFloat(data.config.valorPasaje || 0));
