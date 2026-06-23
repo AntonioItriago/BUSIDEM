@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-// Detectar la IP dinámica del servidor en la red local de forma automática
-const API_URL = `http://${window.location.hostname}:3001`;
-const socket = io(API_URL); 
+// Ajuste dinámico de la dirección de red para producción o desarrollo local
+const API_URL = window.location.hostname === 'busidem.onrender.com' 
+  ? '' 
+  : `http://${window.location.hostname}:3001`;
+
+// Inicializa Socket sin puerto si está en producción en Render
+const socket = window.location.hostname === 'busidem.onrender.com' ? io() : io(API_URL);
 
 function Chofer({ cedulaInicial }) {
+// ... Todo el resto de tu código de Chofer.jsx se mantiene exactamente idéntico
   // Control de navegación en pantalla móvil usando la cédula heredada
   const [choferLogueado, setChoferLogueado] = useState(null);
   const [unidadAsignada, setUnidadAsignada] = useState(null);

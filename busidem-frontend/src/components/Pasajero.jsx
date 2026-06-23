@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-// Detecta automáticamente la IP o Host actual del router donde se aloje el sistema
-const API_URL = `http://${window.location.hostname}:3001`;
-const socket = io(API_URL);
+// Ajuste dinámico de la dirección de red para producción o desarrollo local
+const API_URL = window.location.hostname === 'busidem.onrender.com' 
+  ? '' 
+  : `http://${window.location.hostname}:3001`;
+
+// Inicializa Socket sin puerto si está en producción en Render
+const socket = window.location.hostname === 'busidem.onrender.com' ? io() : io(API_URL);
 
 function Pasajero({ cedulaInicial }) {
+// ... Todo el resto de tu código de Pasajero.jsx se mantiene exactamente idéntico
   const [valorPasaje, setValorPasaje] = useState(0); // Nuevo estado para la tarifa
 
   const cargarTarifaVigente = async () => {

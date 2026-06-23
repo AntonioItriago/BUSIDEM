@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 
-// Detecta automáticamente la IP o Host actual del entorno de red local
-const API_URL = `http://${window.location.hostname}:3001`;
-
+// Si está en producción (Render), usa rutas relativas; si estás en local, usa el puerto 3001
+const API_URL = window.location.hostname === 'busidem.onrender.com' 
+  ? '' 
+  : `http://${window.location.hostname}:3001`;
 
 function Admin() {
+// ... Todo el resto de tu código de Admin.jsx se mantiene exactamente idéntico
   const [pestanaActiva, setPestanaActiva] = useState('buses');
   const [error, setError] = useState('');
   const [qrAppPasajero, setQrAppPasajero] = useState(null);
