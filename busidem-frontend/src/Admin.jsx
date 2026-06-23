@@ -5,8 +5,8 @@ const API_URL = window.location.hostname === 'busidem.onrender.com'
   ? '' 
   : `http://${window.location.hostname}:3001`;
 
+
 function Admin() {
-// ... Todo el resto de tu código de Admin.jsx se mantiene exactamente idéntico
   const [pestanaActiva, setPestanaActiva] = useState('buses');
   const [error, setError] = useState('');
   const [qrAppPasajero, setQrAppPasajero] = useState(null);
@@ -165,7 +165,7 @@ const cargarConfiguracion = async () => {
     }
   };
 
-  const asignarChoferAUnidad = async (unidadId, choferCedula) => {
+  const asignarChofer AUnidad = async (unidadId, choferCedula) => {
     try {
       const res = await fetch(`${API_URL}/api/admin/unidades/asignar`, {
         method: 'POST',
@@ -321,7 +321,7 @@ const cargarConfiguracion = async () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#4e73df', padding: '20px', borderRadius: '10px', color: '#fff', marginBottom: '25px', boxShadow: '0 4px 12px rgba(78,115,223,0.15)' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: '700' }}>Panel Administrativo de Control Vial</h1>
-          <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#eaecf4' }}>LUREM MOVEM SERVER - Gestión General</p>
+          <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#eaecf4' }}>BUSIDEM SERVER - Gestión General</p>
         </div>
         <div style={{ backgroundColor: '#2e59d9', padding: '10px 15px', borderRadius: '5px', fontSize: '13px', fontWeight: 'bold', fontFamily: 'monospace' }}>
           CONEXIÓN LOCAL: {API_URL}
