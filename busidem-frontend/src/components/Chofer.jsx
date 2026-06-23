@@ -59,7 +59,7 @@ function Chofer({ cedulaInicial }) {
       const res = await fetch(`${API_URL}/api/admin/resumen`);
       const data = await res.json();
       if (data.success && data.choferes) {
-        const chofer = data.choferes.find(ch => ch.cedula.trim() === cedula.trim());
+        const chofer = data.choferes.find(ch => ch.cedula.toString().trim() === cedula.toString().trim());
         if (chofer) {
           setChoferLogueado(chofer);
           buscarUnidadAsignada(chofer.cedula, data.unidades || []);
@@ -79,10 +79,10 @@ function Chofer({ cedulaInicial }) {
       const res = await fetch(`${API_URL}/api/admin/resumen`);
       const data = await res.json();
       if (data.success && data.choferes) {
-        const chofer = data.choferes.find(ch => ch.cedula.trim() === cedula.trim());
+        const chofer = data.choferes.find(ch => ch.cedula.toString().trim() === cedula.toString().trim());
         if (chofer) {
           setChoferLogueado(chofer);
-          buscarUnidadAsignada(chofer.cedula, data.unidades || []);
+          buscarUnidadAsignada(cedula, data.unidades || []);
         }
       }
     } catch (err) {
@@ -91,8 +91,16 @@ function Chofer({ cedulaInicial }) {
   };
 
   const buscarUnidadAsignada = (cedulaChofer, listaUnidades) => {
-    // Corrección para validar si el texto de asignación de la central incluye la cédula del chofer
-    const unidad = listaUnidades.find(u => u.choferAsignado && u.choferAsignado.includes(cedulaChofer.trim()));
+    if (!cedulaChofer || !listaUnidades) return;
+    
+    const cedulaStr = cedulaChofer.toString().trim();
+    
+    // Busca la unidad asegurando que coincida la cadena de texto de la asignación
+    const unidad = listaUnidades.find(u => {
+      if (!u.choferAsignado) return false;
+      return u.choferAsignado.toString().includes(cedulaStr);
+    });
+
     if (unidad) {
       setUnidadAsignada(unidad);
     } else {
