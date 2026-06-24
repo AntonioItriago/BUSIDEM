@@ -18,6 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 // --- CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS ---
+
 // Servir archivos desde la carpeta 'dist' (donde Vite pone el frontend compilado)
 app.use(express.static(path.join(__dirname, 'dist')));
 
